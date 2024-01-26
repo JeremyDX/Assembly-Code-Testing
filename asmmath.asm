@@ -63,4 +63,45 @@
 		ret
 	MemCopy32d endp
 
+	;Does a generic loop across the elements from Last to First and compares the previously stored Reg1 value w/ src_address[count]
+	;Then will conditionally store src_address[count] if it exceeds the value of Reg1's current value. At end returns the Highest Value Found.
+  	;extern "C" int FindMaxValue32d(int* src, int count);
+	FindMaxValue32d proc
+		cmp rdx, 0;
+		mov eax, 80000000h;
+		jle Finished;
+
+		MainLoop:
+			dec rdx;
+			mov r8d, dword ptr[rcx + rdx * 4h];
+			cmp r8d, eax;
+			cmovg eax, r8d;
+			cmp rdx, 0;
+			jg MainLoop;
+		
+		Finished:
+			ret
+	FindMaxValue32d endp
+
+
+	;Does a generic loop across the elements from Last to First and compares the previously stored Reg1 value w/ src_address[count]
+	;Then will conditionally store src_address[count] if its less than the value of Reg1's current value. At end returns the Lowest Value Found.
+  	;extern "C" int FindMinValue32d(int* src, int count);
+	FindMinValue32d proc
+		cmp rdx, 0;
+		mov eax, 7FFFFFFFh;
+		jle Finished;
+
+		MainLoop:
+			dec rdx;
+			mov r8d, dword ptr[rcx + rdx * 4h];
+			cmp r8d, eax;
+			cmovl eax, r8d;
+			cmp rdx, 0;
+			jg MainLoop;
+		
+		Finished:
+			ret
+	FindMinValue32d endp
+
 end
