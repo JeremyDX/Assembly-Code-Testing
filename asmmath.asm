@@ -104,4 +104,39 @@
 			ret
 	FindMinValue32d endp
 
+	;This is largest non sse clear method, but is an effective way to clear bytes quickly without getting into better simd sse instructions.
+	;Takes in a pointer to memory to clear of any type and the amount of memory to clear. Clears 8 bytes at a time. Then remaining bytes 1 by 1.
+	;Begins by checking if we're 7 or below. If not store our size in Reg8 then divide by 8 to get a Loop Count. Then we begin clearing memory.
+	;Once we've completed our count, we now loop any remaining bits, but first we check if our AND'd Reg4 by 7 to get a value between 0 and 7 if this is 0 we're done
+	;If this is not 0 then we loop the memory again but this time by 1 byte clearing. 
+	;void ZeroMemory64(void* memory, int memory_size);
+	ZeroMemory64 proc
+		cmp edx, 7h
+		jle CheckZero;
+
+		mov r8d, edx;
+		shr r8d, 3
+
+		MainLoop:
+			mov qword ptr [rcx], 0;
+			add rcx, 8h;
+			dec r8d;
+			jnz MainLoop;
+			
+		and edx, 7h
+
+		CheckZero:
+			cmp edx, 0
+			jle Finished;
+
+		ClearFinalBytes:
+			mov byte ptr [rcx], 0;
+			inc rcx;
+			dec edx;
+			jnz ClearFinalBytes;
+
+		Finished:
+			ret
+	ZeroMemory64 endp
+
 end
